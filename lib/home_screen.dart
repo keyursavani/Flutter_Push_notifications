@@ -16,18 +16,21 @@ class HomeScreen extends StatefulWidget{
     // TODO: implement initState
     super.initState();
     notificationServices.requestNotificationPermission();
-    notificationServices.firebaseInit();
+    notificationServices.firebaseInit(context);
+    notificationServices.setupInteractMessage(context);
     // notificationServices.isTokenRefresh();
     notificationServices.getDeviceToken().then((value) {
       print("Device Token");
       print(value);
     });
-
   }
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Home Screen"),
+      ),
       body: Container(),
     );
   }

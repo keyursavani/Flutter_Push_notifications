@@ -1,11 +1,14 @@
 
 
+import 'dart:io';
 import 'dart:math';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:push_notification_tutorial/mesage_screen.dart';
 
 class NotificationServices{
   FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -43,19 +46,28 @@ class NotificationServices{
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSetting,
       onDidReceiveNotificationResponse: (payload){
-
+        handelMessage(context ,message);
       }
     );
   }
 
 
-  void firebaseInit(){
+  void firebaseInit(BuildContext context){
     FirebaseMessaging.onMessage.listen((message) {
       if(kDebugMode){
         print(message.notification!.title.toString());
         print(message.notification!.body.toString());
+        print(message.data.toString());
+        print(message.data['type']);
+        print(message.data['id']);
       }
-      showNotification(message);
+      if(Platform.isAndroid){
+        initialLocalNotification(context, message);
+        showNotification(message);
+      }
+      else{
+        showNotification(message);
+      }
     });
   }
 
@@ -105,5 +117,28 @@ class NotificationServices{
       event.toString();
       print("Refresh Token");
     });
+  }
+
+  Future<void> setupInteractMessage(BuildContext context) async {
+
+    // When App is terminated
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if(initialMessage != null){
+      handelMessage(context, initialMessage);
+    }
+    // When App is in background
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      handelMessage(context, event);
+    });
+  }
+
+  void handelMessage(BuildContext context , RemoteMessage message){
+    if(message.data['type'] == 'msj'){
+      Navigator.push(
+        context,
+      MaterialPageRoute(builder: (context){
+        return MessageScreen(id:message.data['id'],);
+      }));
+    }
   }
 }
