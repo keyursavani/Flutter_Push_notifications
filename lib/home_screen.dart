@@ -20,6 +20,7 @@ class HomeScreen extends StatefulWidget{
     // TODO: implement initState
     super.initState();
     notificationServices.requestNotificationPermission();
+    notificationServices.foregroundMessage();
     notificationServices.firebaseInit(context);
     notificationServices.setupInteractMessage(context);
     notificationServices.isTokenRefresh();

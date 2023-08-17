@@ -54,7 +54,12 @@ class NotificationServices{
 
   void firebaseInit(BuildContext context){
     FirebaseMessaging.onMessage.listen((message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? androidNotification = message.notification!.android;
       if(kDebugMode){
+        print("Notification Title :- ${notification!.title}");
+        print("Notification Body :- ${notification.body}");
+        print("Count :- ${androidNotification!.count}");
         print(message.notification!.title.toString());
         print(message.notification!.body.toString());
         print(message.data.toString());
@@ -64,6 +69,9 @@ class NotificationServices{
       if(Platform.isAndroid){
         initialLocalNotification(context, message);
         showNotification(message);
+      }
+      if(Platform.isIOS){
+        foregroundMessage();
       }
       else{
         showNotification(message);
@@ -140,5 +148,13 @@ class NotificationServices{
         return MessageScreen(id:message.data['id'],);
       }));
     }
+  }
+
+  Future foregroundMessage() async{
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
   }
 }
